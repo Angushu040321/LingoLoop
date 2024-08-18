@@ -1,7 +1,7 @@
 // This component is used in the landing page to display the features of the applications we're about to build
 import { Box, Container, Grid, Typography } from '@mui/material';
 import { Language, School, AccessTime } from '@mui/icons-material';
-
+import { SignedIn, UserButton } from '@clerk/nextjs';
 const features = [
   {
     icon: <Language fontSize="large" sx={{ color: '#F97316' }} />, // Orange icon

@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Container, Grid, Box, Typography, Paper, Button } from "@mui/material";
 import { loadStripe } from '@stripe/stripe-js';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { SignInButton,SignUpButton } from '@clerk/clerk-react'
+import { SignedIn, UserButton } from '@clerk/nextjs';
 
 
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default function Pricing() {
   const [loading, setLoading] = useState(false);
@@ -89,13 +90,15 @@ export default function Pricing() {
                   <Typography variant="h4" color="primary" gutterBottom>
                     $0
                   </Typography>
-                  <Button variant="contained" color="secondary" fullWidth onClick={handleFreePlan}>
-                    Get Started
-                  </Button>
+                   <SignInButton> 
+                    <Button variant="contained" color="secondary" fullWidth >
+                      Get Started
+                    </Button>
+                  </SignInButton> 
                 </Paper>
               </Grid>
       
-              <Grid item xs={12} md={6}>
+              {/* <Grid item xs={12} md={6}>
                 <Paper elevation={3} sx={{ p: 4, textAlign: 'center', backgroundColor: ' #fffefe ' }}>
                   <Typography variant="h5" color="primary" gutterBottom>
                     <b>Pro Plan 🚀</b>
@@ -119,8 +122,10 @@ export default function Pricing() {
                     {loading ? 'Loading...' : 'Upgrade to Pro'}
                   </Button>
                 </Paper>
-              </Grid>
+              </Grid> */}
+
             </Grid>
+
           </Container>
         </Box>
   );

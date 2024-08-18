@@ -2,7 +2,7 @@
 
 import { Box, Container, Typography, Button } from '@mui/material';
 import Image from 'next/image';
-
+import { SignedIn, UserButton } from '@clerk/nextjs';
 export default function HeroSection() {
   return (
     <Box

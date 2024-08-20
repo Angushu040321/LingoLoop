@@ -3,32 +3,30 @@
 
 import { useClerk } from '@clerk/clerk-react'
 import { useAuth } from '@clerk/nextjs'
-import { Button, NativeSelect, TextField, useRadioGroup } from '@mui/material'
+import { Button, Grid, TextField, Typography,Box } from '@mui/material'
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInWithCustomToken } from 'firebase/auth'
-import { getFirestore, setDoc } from 'firebase/firestore'
+import { collection, getFirestore, setDoc } from 'firebase/firestore'
 import { doc, getDoc, addDoc, updateDoc, arrayUnion } from 'firebase/firestore'
 import { useId, useState } from 'react'
 import { db, auth, analytics } from '../../firebase.js'
 import { headers } from 'next/headers.js'
 import { SignedIn, UserButton } from '@clerk/nextjs';
 
-const getFirestoreData = async () => {
-    const { userId } = useAuth()
-    const docRef = doc(db, 'users', userId)
-    const docSnap = await getDoc(docRef)
-    if (docSnap.exists()) {
-        console.log('Document data:', docSnap.data())
-    } else {
-        // docSnap.data() will be undefined in this case
-        console.log('No such document!')
-    }
-}
+
+async function getFirestoreData (userId) {
+    const collectionRef = doc(db,'users',userId)
+    const docSnap = await getDoc(collectionRef) 
+    
+    
+    return docSnap // Call the data() method to get the document data
+    
+}   
 
 const setFirestoreData = async (userId) => {
 
     const docRef = doc(db, 'users', userId)
-    await setDoc(docRef, { user_id: userId })
+    return docRef
 
 }
 
@@ -40,8 +38,37 @@ async function saveCards(userId, inventory) {
 }
 
 
+function Card(props){
+   const[isFliped,setIsFliped] = useState(false)
+    return(
+        <div>
+            <Button onClick={()=>setIsFliped(!isFliped)}>
+                {isFliped ? props.back : props.front}
+            </Button>
+        </div>
+        
+    )
 
+}
 
+function CardList({input}){
+
+   console.log(input)
+    return (
+        <div>
+            
+            {input.map((data)=>{
+                
+                const key = `${data.front}-${data.back}`
+                return (
+                    <Card key={key} front={data.front} back={data.back} />
+                )
+            })
+
+            }
+        </div>
+    )
+}
 
 
 
@@ -49,7 +76,8 @@ async function saveCards(userId, inventory) {
 export default function Home() {
 
     const { getToken, userId } = useAuth()
-
+    const {data_firebase} = getFirestoreData(userId)
+    
     // Handle if the user is not signed in
     // You could display content, or redirect them to a sign-in page
     
@@ -63,11 +91,18 @@ export default function Home() {
         // the Firebase platform as an authenticated user.
         console.log('User:', userCredentials.user)
     }
-    setFirestoreData(userId);
+    if(!userId){
+        setFirestoreData(userId);
+    }
     const [value, setValue] = useState('')
     const [langToLearn, setToLearn] = useState('')
     const [native, setnative] = useState('')
     const [inventory, setInventory] = useState({})
+    const [genDisplay,setGendisplay] = useState('')
+
+    
+
+
 
     const getResponse = async () => {
         if (!value || !langToLearn || !native) {
@@ -104,9 +139,31 @@ export default function Home() {
 
 
     }
+    
+    const Aitem = inventory.cards 
+    let aiItemarr = []
 
+    if (Aitem) {
+        aiItemarr = Aitem  
+    }
+    else
+    {
+         aiItemarr = []
+    }
+    const [dbitem,setDbitem ] = useState()
+    getFirestoreData(userId).then(setDbitem)
+    console.log(dbitem)
+    let dbarr = []
+    if (dbitem){
+        console.log(dbitem)
+        dbarr = dbitem.data().inventory[0].cards
+    }
+    else{
+        dbarr = []
+    }
 
-
+    //let aiItemarr = inventory.cards
+   
     return (
         
         <box>
@@ -136,19 +193,28 @@ export default function Home() {
             <Button onClick={() => saveCards(userId, inventory)}>
                 save
             </Button>
+            
+             
+            
+            
+            <div>
+                your current genreation :
+                <CardList input={aiItemarr}/>
+            </div>
+            <div>
+                things in your data base :
+                <CardList input={dbarr} />
+            </div>
 
 
+            
         </box>
+        
     )
 
 
 
-
-
-
-
-
-
-
-
 }
+
+
+
